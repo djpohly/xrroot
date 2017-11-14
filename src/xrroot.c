@@ -12,7 +12,7 @@
 #define MIN(a,b) ((a)<(b)?(a):(b))
 
 typedef enum
-{ Fit, Fill, Center, Tile } ImageMode;
+{ Fit, Fill, Cover, Center, Tile } ImageMode;
 
 void
 usage (char *commandline)
@@ -34,6 +34,7 @@ usage (char *commandline)
 	  " -center <image>            Render an image centered on screen\n"
 	  " -tile <image>              Render an image tiled\n"
 	  " -fit <image>               Render an image scaled to fit the screen\n"
+	  " -cover <image>             Render an image scaled to cover the screen\n"
 	  " -fill <image>              Render an image stretched\n"
 	  "\n"
 	  "Manipulations:\n"
@@ -217,6 +218,16 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
     if (mode == Fill)
     {
       imlib_blend_image_onto_image (buffer, 0, 0, 0, imgW, imgH,
+          ci->x, ci->y, ci->width, ci->height);
+    }
+  else if (mode == Cover)
+    {
+      int top, left;
+      double aspect = MAX((double) ci->width / imgW, (double) ci->height / imgH);
+      left = (imgW - (int) (ci->width / aspect)) / 2;
+      top = (imgH - (int) (ci->height / aspect)) / 2;
+      imlib_blend_image_onto_image (buffer, 0, left, top,
+          (int) (ci->width / aspect), (int) (ci->height / aspect),
           ci->x, ci->y, ci->width, ci->height);
     }
   else if (mode == Fit)
@@ -423,6 +434,20 @@ main (int argc, char **argv)
 		  continue;
 		}
 	      if (load_image (Fill, argv[i], width, height, alpha, image) ==
+		  0)
+		{
+		  fprintf (stderr, "Bad image (%s)\n", argv[i]);
+		  continue;
+		}
+	    }
+	  else if (strcmp (argv[i], "-cover") == 0)
+	    {
+	      if ((++i) >= argc)
+		{
+		  fprintf (stderr, "Missing image\n");
+		  continue;
+		}
+	      if (load_image (Cover, argv[i], width, height, alpha, image) ==
 		  0)
 		{
 		  fprintf (stderr, "Bad image (%s)\n", argv[i]);
