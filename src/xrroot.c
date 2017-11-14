@@ -1,11 +1,15 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#include <X11/extensions/Xrandr.h>
 #include <Imlib2.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "config.h"
+
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#define MIN(a,b) ((a)<(b)?(a):(b))
 
 typedef enum
 { Full, Fill, Center, Tile } ImageMode;
@@ -176,6 +180,14 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
   imlib_context_set_image (buffer);
   imgW = imlib_image_get_width (), imgH = imlib_image_get_height ();
 
+  XRRScreenResources *res = XRRGetScreenResources(display,
+      RootWindow(display, screen));
+  if (!res) {
+    imlib_free_image ();
+    imlib_context_set_image (rootimg);
+    return 0;
+  }
+
   if (alpha < 255)
     {
       // Create alpha-override mask
@@ -194,10 +206,18 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
     }
 
   imlib_context_set_image (rootimg);
-  if (mode == Fill)
+  int i;
+  for (i = 0; i < res->noutput; i++) {
+    XRROutputInfo *oi = XRRGetOutputInfo(display, res, res->outputs[i]);
+    if (oi->connection == RR_Disconnected) {
+      XRRFreeOutputInfo(oi);
+      continue;
+    }
+    XRRCrtcInfo *ci = XRRGetCrtcInfo(display, res, oi->crtc);
+    if (mode == Fill)
     {
       imlib_blend_image_onto_image (buffer, 0, 0, 0, imgW, imgH,
-				    0, 0, rootW, rootH);
+          ci->x, ci->y, ci->width, ci->height);
     }
   else if (mode == Full)
     {
@@ -213,7 +233,7 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
     }
   else
     {
-      int left = (rootW - imgW) / 2, top = (rootH - imgH) / 2;
+      int left = ((int)ci->width - imgW) / 2, top = ((int)ci->height - imgH) / 2;
 
       if (mode == Tile)
 	{
@@ -227,11 +247,16 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
 					    x, y, imgW, imgH);
 	}
       else
-	{
-	  imlib_blend_image_onto_image (buffer, 0, 0, 0, imgW, imgH,
-					left, top, imgW, imgH);
-	}
+      {
+        int w = MIN(imgW, ci->width), h = MIN(imgH, ci->height);
+        imlib_blend_image_onto_image (buffer, 0,
+            MAX(-left, 0), MAX(-top, 0), w, h,
+            ci->x + MAX(left, 0), ci->y + MAX(top, 0), w, h);
+      }
     }
+    XRRFreeCrtcInfo(ci);
+    XRRFreeOutputInfo(oi);
+  }
 
   imlib_context_set_image (buffer);
   imlib_free_image ();
