@@ -221,15 +221,13 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
     }
   else if (mode == Full)
     {
-      double aspect = ((double) rootW) / imgW;
       int top, left;
-      if ((int) (imgH * aspect) > rootH)
-	aspect = (double) rootH / (double) imgH;
-      top = (rootH - (int) (imgH * aspect)) / 2;
-      left = (rootW - (int) (imgW * aspect)) / 2;
+      double aspect = MIN((double) ci->width / imgW, (double) ci->height / imgH);
+      left = (ci->width - (int) (imgW * aspect)) / 2;
+      top = (ci->height - (int) (imgH * aspect)) / 2;
       imlib_blend_image_onto_image (buffer, 0, 0, 0, imgW, imgH,
-				    left, top, (int) (imgW * aspect),
-				    (int) (imgH * aspect));
+          ci->x + left, ci->y + top,
+          (int) (imgW * aspect), (int) (imgH * aspect));
     }
   else
     {
