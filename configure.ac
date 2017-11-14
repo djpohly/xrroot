@@ -19,10 +19,9 @@
 # 
 
 AC_PREREQ(2.52)
-AC_INIT(hsetroot, 1.0.2, hyriand@thegraveyard.org)
+AC_INIT([hsetroot], [1.0.2], [hyriand@thegraveyard.org])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(hsetroot, 1.0.2)
-AM_MAINTAINER_MODE
+AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC
@@ -31,23 +30,20 @@ AC_PROG_CC
 CFLAGS=${CFLAGS:=-O2 -g -Wall}
 
 # Checks for header files.
-AC_PATH_X
 AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
+# Check for X11
+PKG_CHECK_MODULES([X], [x11])
+AC_SUBST(X_CFLAGS)
+AC_SUBST(X_LIBS)
+
 # Check for imlib2
-AC_CHECK_PROGS(imlib2config_cmd, imlib2-config)
-if test x$imlib2config_cmd = "x"; then
-  AC_MSG_ERROR([error. Imlib2 is required to compile.])
-fi
-
-IMLIB2_CFLAGS=`$imlib2config_cmd --cflags`
+PKG_CHECK_MODULES([IMLIB2], [imlib2])
 AC_SUBST(IMLIB2_CFLAGS)
-
-IMLIB2_LIBS=`$imlib2config_cmd --libs`
 AC_SUBST(IMLIB2_LIBS)
 
 # Some extra definitions for config.h
