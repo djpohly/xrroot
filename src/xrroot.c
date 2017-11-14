@@ -12,7 +12,7 @@
 #define MIN(a,b) ((a)<(b)?(a):(b))
 
 typedef enum
-{ Full, Fill, Center, Tile } ImageMode;
+{ Fit, Fill, Center, Tile } ImageMode;
 
 void
 usage (char *commandline)
@@ -33,11 +33,11 @@ usage (char *commandline)
 	  "Image files:\n"
 	  " -center <image>            Render an image centered on screen\n"
 	  " -tile <image>              Render an image tiled\n"
-	  " -full <image>              Render an image maximum aspect\n"
-	  " -fill <image>              Render an image strechted\n"
+	  " -fit <image>               Render an image scaled to fit the screen\n"
+	  " -fill <image>              Render an image stretched\n"
 	  "\n"
 	  "Manipulations:\n"
-	  " -tint <color>	             Tint the current image\n"
+	  " -tint <color>              Tint the current image\n"
 	  " -blur <radius>             Blur the current image\n"
 	  " -sharpen <radius>          Sharpen the current image\n"
 	  " -contrast <amount>         Adjust contrast of current image\n"
@@ -219,7 +219,7 @@ load_image (ImageMode mode, const char *arg, int rootW, int rootH, int alpha,
       imlib_blend_image_onto_image (buffer, 0, 0, 0, imgW, imgH,
           ci->x, ci->y, ci->width, ci->height);
     }
-  else if (mode == Full)
+  else if (mode == Fit)
     {
       int top, left;
       double aspect = MIN((double) ci->width / imgW, (double) ci->height / imgH);
@@ -429,14 +429,14 @@ main (int argc, char **argv)
 		  continue;
 		}
 	    }
-	  else if (strcmp (argv[i], "-full") == 0)
+	  else if (strcmp (argv[i], "-fit") == 0 || strcmp (argv[i], "-full") == 0)
 	    {
 	      if ((++i) >= argc)
 		{
 		  fprintf (stderr, "Missing image\n");
 		  continue;
 		}
-	      if (load_image (Full, argv[i], width, height, alpha, image) ==
+	      if (load_image (Fit, argv[i], width, height, alpha, image) ==
 		  0)
 		{
 		  fprintf (stderr, "Bad image (%s)\n", argv[i]);
