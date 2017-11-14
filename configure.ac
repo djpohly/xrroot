@@ -1,4 +1,4 @@
-# hsetroot - an imlib2 powered wallpaper application
+# xrroot - xrandr-aware hsetroot
 # Copyright (C) 2003 Hyriand - See COPYING
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 # 
 
 AC_PREREQ(2.52)
-AC_INIT([hsetroot], [1.0.2], [hyriand@thegraveyard.org])
+AC_INIT([xrroot], [1.0.3], [djpohly@gmail.com])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
 
@@ -47,7 +47,7 @@ AC_SUBST(IMLIB2_CFLAGS)
 AC_SUBST(IMLIB2_LIBS)
 
 # Some extra definitions for config.h
-AC_DEFINE(DESCRIPTION, "yet another wallpaper application", [single line package description])
+AC_DEFINE(DESCRIPTION, "xrandr-aware hsetroot", [single line package description])
 
 AM_CONFIG_HEADER(config/config.h)
 AC_CONFIG_FILES([Makefile src/Makefile config/Makefile])

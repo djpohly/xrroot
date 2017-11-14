@@ -1,4 +1,4 @@
-hsetroot -- Yet another wallpaper application...
+xrroot -- Yet another wallpaper application...
 
 Q: why another one?
 A: Personal requirements..
@@ -16,11 +16,11 @@ A: like most apps..
        # su
        # make install
 
-Q: To whom should I bitch?
-A: hyriand@thegraveyard.org
+Q: Where do I report bugs?
+A: https://github.com/djpohly/xrroot
 
 Q: uhmm.. help?!?
-A: hsetroot --help
+A: xrroot --help
 
 Q: you don't like docs, right?
 A: right...

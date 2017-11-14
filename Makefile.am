@@ -1,4 +1,4 @@
-# xmmplayer - mp3 plugin for xmms
+# xrroot - xrandr-aware hsetroot
 # Copyright (C) 2003 Hyriand - See COPYING
 #
 # This program is free software; you can redistribute it and/or modify
