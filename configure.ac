@@ -36,15 +36,22 @@ AC_CHECK_HEADERS([string.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
-# Check for X11
-PKG_CHECK_MODULES([X], [x11])
-AC_SUBST(X_CFLAGS)
-AC_SUBST(X_LIBS)
+# Check for X11 and XRandR
+AC_CHECK_HEADERS([X11/Xlib.h], [],
+                 [AC_ERROR([Missing libx11 headers])])
+AC_SEARCH_LIBS([XOpenDisplay], [X11], [],
+               [AC_ERROR([Missing libx11 libraries])])
+
+AC_CHECK_HEADERS([X11/extensions/Xrandr.h], [],
+                 [AC_ERROR([Missing libxrandr headers])])
+AC_SEARCH_LIBS([XRRGetScreenResources], [Xrandr], [],
+               [AC_ERROR([Missing libxrandr libraries])])
 
 # Check for imlib2
-PKG_CHECK_MODULES([IMLIB2], [imlib2])
-AC_SUBST(IMLIB2_CFLAGS)
-AC_SUBST(IMLIB2_LIBS)
+AC_CHECK_HEADERS([Imlib2.h], [],
+                 [AC_ERROR([Missing Imlib2 headers])])
+AC_SEARCH_LIBS([imlib_context_new], [Imlib2], [],
+               [AC_ERROR([Missing Imlib2 libraries])])
 
 # Some extra definitions for config.h
 AC_DEFINE(DESCRIPTION, "xrandr-aware hsetroot", [single line package description])
